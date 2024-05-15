@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import com.hoaxify.ws.error.ApiError;
 import com.hoaxify.ws.shared.GenericMessage;
 import com.hoaxify.ws.shared.Messages;
+import com.hoaxify.ws.user.dto.UserCreate;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,9 +33,9 @@ public class UserController {
 
 
     @PostMapping("/api/v1/users")
-    ResponseEntity<?> createUser(@Valid @RequestBody User user) {
+    ResponseEntity<?> createUser(@Valid @RequestBody UserCreate user) {
         System.err.println("--------->"+LocaleContextHolder.getLocale().getLanguage());
-        userService.save(user);
+        userService.save(user.toUser());
        
         String message = Messages.getMessageForLocale("hoaxify.create.user.success.message",  LocaleContextHolder.getLocale());
 
