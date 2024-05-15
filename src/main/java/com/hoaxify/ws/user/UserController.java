@@ -2,12 +2,13 @@ package com.hoaxify.ws.user;
 
 
 
+
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import com.hoaxify.ws.error.ApiError;
 import com.hoaxify.ws.shared.GenericMessage;
+import com.hoaxify.ws.shared.Messages;
+
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,16 +33,20 @@ public class UserController {
 
     @PostMapping("/api/v1/users")
     ResponseEntity<?> createUser(@Valid @RequestBody User user) {
-
+        System.err.println("--------->"+LocaleContextHolder.getLocale().getLanguage());
         userService.save(user);
-        return ResponseEntity.ok(new GenericMessage("User is created"));
+       
+        String message = Messages.getMessageForLocale("hoaxify.create.user.success.message",  LocaleContextHolder.getLocale());
+
+        return ResponseEntity.ok(new GenericMessage(message));
     }
     
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<ApiError> handleMethodArgNotValidEx(MethodArgumentNotValidException exception) {
         ApiError apiError = new ApiError();
         apiError.setPath("/api/v1/users");
-        apiError.setMessage("Validation Error");
+        String message = Messages.getMessageForLocale("hoaxify.error.validation", LocaleContextHolder.getLocale());
+        apiError.setMessage(message);
         apiError.setStatus(400);
         // Map<String, String> validationErrors = new HashMap<>();
         // System.out.println(exception.getBindingResult().getFieldError());
@@ -57,12 +64,14 @@ public class UserController {
     // @ExceptionHandler(NotUniqueEmailException.class)
     // ResponseEntity<ApiError> handleNotUniqueEmailException(NotUniqueEmailException exception){
     //       ApiError apiError = new ApiError();
-    //     apiError.setPath("/api/v1/users");
-    //     apiError.setMessage("Validation error");
+    //       apiError.setPath("/api/v1/users");
+    //      String message = Messages.getMessageForLocale("hoaxify.error.validation", LocaleContextHolder.getLocale());
+    //     apiError.setMessage(message);
     //     apiError.setStatus(400);
 
     //     Map<String, String> validationErrors = new HashMap();
-    //     validationErrors.put("email", "Email is in use");
+    //      String messageForEmail = Messages.getMessageForLocale("hoaxify.constraint.email.not-unique", LocaleContextHolder.getLocale());
+    //     validationErrors.put("email", messageForEmail);
     //     apiError.setValidationErrors(validationErrors);
 
     //     return ResponseEntity.badRequest().body(apiError);
