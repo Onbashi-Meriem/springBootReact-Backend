@@ -3,6 +3,8 @@ package com.hoaxify.ws.user;
 
 
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -62,19 +64,19 @@ public class UserController {
         return ResponseEntity.badRequest().body(apiError);
     }
     
-    // @ExceptionHandler(NotUniqueEmailException.class)
-    // ResponseEntity<ApiError> handleNotUniqueEmailException(NotUniqueEmailException exception){
-    //       ApiError apiError = new ApiError();
-    //       apiError.setPath("/api/v1/users");
-    //      String message = Messages.getMessageForLocale("hoaxify.error.validation", LocaleContextHolder.getLocale());
-    //     apiError.setMessage(message);
-    //     apiError.setStatus(400);
+    @ExceptionHandler(NotUniqueEmailException.class)
+    ResponseEntity<ApiError> handleNotUniqueEmailException(NotUniqueEmailException exception){
+          ApiError apiError = new ApiError();
+          apiError.setPath("/api/v1/users");
+         String message = Messages.getMessageForLocale("hoaxify.error.validation", LocaleContextHolder.getLocale());
+        apiError.setMessage(message);
+        apiError.setStatus(400);
 
-    //     Map<String, String> validationErrors = new HashMap();
-    //      String messageForEmail = Messages.getMessageForLocale("hoaxify.constraint.email.not-unique", LocaleContextHolder.getLocale());
-    //     validationErrors.put("email", messageForEmail);
-    //     apiError.setValidationErrors(validationErrors);
+        Map<String, String> validationErrors = new HashMap();
+         String messageForEmail = Messages.getMessageForLocale("hoaxify.constraint.email.not-unique", LocaleContextHolder.getLocale());
+        validationErrors.put("email", messageForEmail);
+        apiError.setValidationErrors(validationErrors);
 
-    //     return ResponseEntity.badRequest().body(apiError);
-    // }
+        return ResponseEntity.badRequest().body(apiError);
+    }
 }
