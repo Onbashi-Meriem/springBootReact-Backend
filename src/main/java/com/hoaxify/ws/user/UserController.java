@@ -1,8 +1,5 @@
 package com.hoaxify.ws.user;
 
-
-
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,31 +18,30 @@ import com.hoaxify.ws.error.ApiError;
 import com.hoaxify.ws.shared.GenericMessage;
 import com.hoaxify.ws.shared.Messages;
 import com.hoaxify.ws.user.dto.UserCreate;
+import com.hoaxify.ws.user.validation.ActivationNotificationException;
+import com.hoaxify.ws.user.validation.NotUniqueEmailException;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-
-
 
 @RestController
 public class UserController {
     @Autowired
     UserService userService;
 
-
     @PostMapping("/api/v1/users")
-    ResponseEntity<?> createUser(@Valid @RequestBody UserCreate user) {
-        System.err.println("--------->"+LocaleContextHolder.getLocale().getLanguage());
+    ResponseEntity<GenericMessage> createUser(@Valid @RequestBody UserCreate user) {
         userService.save(user.toUser());
-       
-        String message = Messages.getMessageForLocale("hoaxify.create.user.success.message",  LocaleContextHolder.getLocale());
+
+        String message = Messages.getMessageForLocale("hoaxify.create.user.success.message",
+                LocaleContextHolder.getLocale());
 
         return ResponseEntity.ok(new GenericMessage(message));
     }
-    
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<ApiError> handleMethodArgNotValidEx(MethodArgumentNotValidException exception) {
+         System.out.println("_____________Validation Exception________________");
         ApiError apiError = new ApiError();
         apiError.setPath("/api/v1/users");
         String message = Messages.getMessageForLocale("hoaxify.error.validation", LocaleContextHolder.getLocale());
@@ -55,7 +51,7 @@ public class UserController {
         // System.out.println(exception.getBindingResult().getFieldError());
 
         // for (var fieldError : exception.getBindingResult().getFieldErrors()) {
-        //     validationErrors.put(fieldError.getField(), fieldError.getDefaultMessage());
+        // validationErrors.put(fieldError.getField(), fieldError.getDefaultMessage());
         // }
         var validationErrors = exception.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage,
@@ -63,19 +59,32 @@ public class UserController {
         apiError.setValidationErrors(validationErrors);
         return ResponseEntity.badRequest().body(apiError);
     }
-    
+
     @ExceptionHandler(NotUniqueEmailException.class)
-    ResponseEntity<ApiError> handleNotUniqueEmailException(NotUniqueEmailException exception){
-          ApiError apiError = new ApiError();
-          apiError.setPath("/api/v1/users");
-         String message = Messages.getMessageForLocale("hoaxify.error.validation", LocaleContextHolder.getLocale());
+    ResponseEntity<ApiError> handleNotUniqueEmailException(NotUniqueEmailException exception) {
+        System.out.println("_____________Not Unique Email Exception________________");
+        ApiError apiError = new ApiError();
+        apiError.setPath("/api/v1/users");
+        String message = Messages.getMessageForLocale("hoaxify.error.validation", LocaleContextHolder.getLocale());
         apiError.setMessage(message);
         apiError.setStatus(400);
 
         Map<String, String> validationErrors = new HashMap();
-         String messageForEmail = Messages.getMessageForLocale("hoaxify.constraint.email.not-unique", LocaleContextHolder.getLocale());
+        String messageForEmail = Messages.getMessageForLocale("hoaxify.constraint.email.not-unique",
+                LocaleContextHolder.getLocale());
         validationErrors.put("email", messageForEmail);
         apiError.setValidationErrors(validationErrors);
+
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
+    @ExceptionHandler(ActivationNotificationException.class)
+    ResponseEntity<ApiError> handleActivationNotificationException(ActivationNotificationException exception) {
+        System.out.println("_____________Activation Notification Exception________________");
+        ApiError apiError = new ApiError();
+        apiError.setPath("/api/v1/users");
+        apiError.setMessage(exception.getMessage());
+        apiError.setStatus(502);
 
         return ResponseEntity.badRequest().body(apiError);
     }

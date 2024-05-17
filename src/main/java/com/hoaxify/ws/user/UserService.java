@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,6 +14,9 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.hoaxify.ws.user.validation.ActivationNotificationException;
+import com.hoaxify.ws.user.validation.NotUniqueEmailException;
 
 @Service
 public class UserService {
@@ -24,15 +28,23 @@ public class UserService {
 
      @Transactional(rollbackOn = MailException.class)
      public void save(User user) {
+            System.out.println("_____________User Service________________");
           try {
-          user.setPassword(passwordEncoder.encode(user.getPassword()));
-          user.setActivationToken(UUID.randomUUID().toString());
-          userRepository.saveAndFlush(user);
-          sendActivationEmail(user);  
-          } catch (Exception e) {
+               System.out.println("_____________save database________________");
+               user.setPassword(passwordEncoder.encode(user.getPassword()));
+               user.setActivationToken(UUID.randomUUID().toString());
+               userRepository.save(user);
+               sendActivationEmail(user);
+          } catch (DataIntegrityViolationException e) {
+                System.out.println("_____________DataIntegrityViolationException________________");
+        
                throw new NotUniqueEmailException();
-          }
-          
+              
+          } catch (MailException exception) {
+                System.out.println("_____________Mail Exception________________");
+               throw new ActivationNotificationException();
+          } 
+
      }
 
      private void sendActivationEmail(User user) {
@@ -44,7 +56,7 @@ public class UserService {
           getJavaMailSender().send(message);
 
      }
-     
+
      public JavaMailSender getJavaMailSender() {
           JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
           mailSender.setHost("smtp.ethereal.email");

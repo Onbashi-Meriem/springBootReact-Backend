@@ -1,9 +1,12 @@
 package com.hoaxify.ws.error;
 
 import java.util.Date;
-import java.util.HashMap;
+
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+@JsonInclude(Include.NON_NULL)
 public class ApiError {
 
     private String message;
@@ -14,7 +17,7 @@ public class ApiError {
 
     private long timestamp = new Date().getTime();
 
-    private Map<String, String> validationErrors = new HashMap();
+    private Map<String, String> validationErrors = null;
 
 
     public Map<String, String> getValidationErrors() {
@@ -46,5 +49,5 @@ public class ApiError {
     }
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
-    }
+    } 
 }
