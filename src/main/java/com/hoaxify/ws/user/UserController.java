@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.hoaxify.ws.error.ApiError;
@@ -19,6 +21,7 @@ import com.hoaxify.ws.shared.GenericMessage;
 import com.hoaxify.ws.shared.Messages;
 import com.hoaxify.ws.user.dto.UserCreate;
 import com.hoaxify.ws.user.validation.ActivationNotificationException;
+import com.hoaxify.ws.user.validation.InvalidTokenException;
 import com.hoaxify.ws.user.validation.NotUniqueEmailException;
 
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +40,15 @@ public class UserController {
                 LocaleContextHolder.getLocale());
 
         return ResponseEntity.ok(new GenericMessage(message));
+    }
+
+    @PatchMapping("/api/v1/users/{token}/active")
+    ResponseEntity<GenericMessage> activateUser(@PathVariable String token) {
+        userService.activateUser(token);
+
+        String message = Messages.getMessageForLocale("hoaxify.activate.user.success.message",
+                LocaleContextHolder.getLocale());
+       return ResponseEntity.ok(new GenericMessage(message));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -85,6 +97,17 @@ public class UserController {
         apiError.setPath("/api/v1/users");
         apiError.setMessage(exception.getMessage());
         apiError.setStatus(502);
+
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    ResponseEntity<ApiError> handleInvalidTokenException(InvalidTokenException exception) {
+        System.out.println("_____________Invalid Token Exception________________");
+        ApiError apiError = new ApiError();
+        apiError.setPath("/api/v1/users");
+        apiError.setMessage(exception.getMessage());
+        apiError.setStatus(400);
 
         return ResponseEntity.badRequest().body(apiError);
     }
