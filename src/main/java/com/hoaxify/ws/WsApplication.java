@@ -32,13 +32,6 @@ public class WsApplication {
 				user.setEmail("user" + i + "@mail.com");
 				user.setPassword(passwordEncoder.encode("P4ssword")); // Varsayılan şifre
 				user.setActive(true);
-				user.setFirstName("firstName"+i);
-				user.setLastName("surname "+i);
-				if (i == 1)
-				{
-					user.setImage("myImage.png");
-				}
-
                 // Veritabanına kaydet
                 userRepository.save(user);
             }

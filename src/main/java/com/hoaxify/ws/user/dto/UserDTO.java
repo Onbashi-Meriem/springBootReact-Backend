@@ -15,15 +15,6 @@ public class UserDTO {
         setUsername(user.getUsername());
         setEmail(user.getEmail());
         setImage(user.getImage());
-        setFullName(user.getFirstName() + " " + user.getLastName());
-    }
-
-    public String getFirstName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
     }
 
     public void setImage(String image) {
@@ -31,7 +22,7 @@ public class UserDTO {
     }
 
     public String getImage() {
-        return image==null?"default.png":image;
+        return image;
     }
 
     public Long getId() {
