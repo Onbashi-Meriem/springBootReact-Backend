@@ -5,13 +5,15 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mail.MailException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.stereotype.Service;
 
 import com.hoaxify.ws.email.EmailService;
+import com.hoaxify.ws.user.dto.UserProjection;
 import com.hoaxify.ws.user.validation.ActivationNotificationException;
 import com.hoaxify.ws.user.validation.InvalidTokenException;
 import com.hoaxify.ws.user.validation.NotUniqueEmailException;
@@ -50,15 +52,23 @@ public class UserService {
      
      public void activateUser(String token) {
           User verificatedUser = userRepository.findByActivationToken(token);
-           
+
           if (verificatedUser == null) {
 
-             throw new InvalidTokenException();
+               throw new InvalidTokenException();
           }
-               verificatedUser.setActive(true);
-               verificatedUser.setActivationToken(null);
-               userRepository.save(verificatedUser);
+          verificatedUser.setActive(true);
+          verificatedUser.setActivationToken(null);
+          userRepository.save(verificatedUser);
      }
+
+     public Page<User> getAllUsers(Pageable pageable) {
+          // Page<User> users = userRepository.findAll(pageable);
+          Page<User> users = userRepository.findAll(pageable);
+          return users;
+     }
+     
+
 
     
 

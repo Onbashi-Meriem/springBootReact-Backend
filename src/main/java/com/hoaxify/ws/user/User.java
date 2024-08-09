@@ -2,9 +2,12 @@ package com.hoaxify.ws.user;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 @Entity
@@ -12,24 +15,57 @@ import javax.persistence.UniqueConstraint;
 public class User {
 
     @Id
-    @GeneratedValue
-    long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
 
     String username;
 
     String email;
 
+    // @JsonIgnore
     String password;
 
+    // @JsonIgnore
     boolean active = false;
 
-    String activationToken; 
+    // @JsonIgnore
+    String activationToken;
+    
+    String image;
 
-    public long getId() {
+    String firstName;
+
+    String lastName;
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -70,8 +106,8 @@ public class User {
         return activationToken;
     }
 
-    public void setActivationToken(String activation_token) {
-        this.activationToken = activation_token;
+    public void setActivationToken(String activationToken) {
+        this.activationToken = activationToken;
     }
     
 }
