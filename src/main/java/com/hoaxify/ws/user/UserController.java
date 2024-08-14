@@ -2,8 +2,11 @@ package com.hoaxify.ws.user;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,7 @@ import com.hoaxify.ws.shared.Messages;
 import com.hoaxify.ws.user.dto.UserCreate;
 import com.hoaxify.ws.user.dto.UserDTO;
 import com.hoaxify.ws.user.dto.UserProjection;
+import com.hoaxify.ws.user.exception.NotFoundException;
 import com.hoaxify.ws.user.validation.ActivationNotificationException;
 import com.hoaxify.ws.user.validation.InvalidTokenException;
 import com.hoaxify.ws.user.validation.NotUniqueEmailException;
@@ -33,6 +37,7 @@ import com.hoaxify.ws.user.validation.NotUniqueEmailException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
 
 @RestController
 public class UserController {
@@ -60,9 +65,16 @@ public class UserController {
     
     @GetMapping("/api/v1/users")
     ResponseEntity<Page<UserDTO>> getAllUsers(@PageableDefault(size = 10) Pageable pageable) {
-        System.out.println(pageable+"controller");
-        Page<User> users=userService.getAllUsers(pageable);
-       return ResponseEntity.ok(users.map(UserDTO::new));
+        System.out.println(pageable + "controller");
+        Page<User> users = userService.getAllUsers(pageable);
+        return ResponseEntity.ok(users.map(UserDTO::new));
+    }
+    
+    @GetMapping("/api/v1/users/{user-id}")
+    ResponseEntity<UserDTO> getUser(@PathVariable(name = "user-id") Long id) {
+     
+        User user = userService.getUserById(id);
+        return ResponseEntity.ok(new UserDTO(user));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -116,12 +128,24 @@ public class UserController {
     }
 
     @ExceptionHandler(InvalidTokenException.class)
-    ResponseEntity<ApiError> handleInvalidTokenException(InvalidTokenException exception) {
+    ResponseEntity<ApiError> handleInvalidTokenException(InvalidTokenException exception, HttpServletRequest request) {
         System.out.println("_____________Invalid Token Exception________________");
         ApiError apiError = new ApiError();
-        apiError.setPath("/api/v1/users");
+        apiError.setPath(request.getRequestURI());
         apiError.setMessage(exception.getMessage());
         apiError.setStatus(400);
+
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
+
+    @ExceptionHandler(NotFoundException.class)
+    ResponseEntity<ApiError> handleNotFoundUser(NotFoundException  exception, HttpServletRequest request) {
+
+        ApiError apiError = new ApiError();
+        apiError.setPath(request.getRequestURI());
+        apiError.setMessage(exception.getMessage());
+        apiError.setStatus(404);
 
         return ResponseEntity.badRequest().body(apiError);
     }

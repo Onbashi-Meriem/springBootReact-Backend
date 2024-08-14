@@ -1,4 +1,5 @@
 package com.hoaxify.ws.user;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -13,10 +14,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.hoaxify.ws.email.EmailService;
+import com.hoaxify.ws.user.dto.UserDTO;
 import com.hoaxify.ws.user.dto.UserProjection;
 import com.hoaxify.ws.user.validation.ActivationNotificationException;
 import com.hoaxify.ws.user.validation.InvalidTokenException;
 import com.hoaxify.ws.user.validation.NotUniqueEmailException;
+import com.hoaxify.ws.user.exception.NotFoundException;;
 
 @Service
 public class UserService {
@@ -66,6 +69,11 @@ public class UserService {
           // Page<User> users = userRepository.findAll(pageable);
           Page<User> users = userRepository.findAll(pageable);
           return users;
+     }
+
+     public User getUserById(Long id) {
+          User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException(id));
+          return user;
      }
      
 
