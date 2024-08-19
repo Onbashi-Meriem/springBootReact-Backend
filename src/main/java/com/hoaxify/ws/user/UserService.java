@@ -14,8 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.hoaxify.ws.email.EmailService;
-import com.hoaxify.ws.user.dto.UserDTO;
-import com.hoaxify.ws.user.dto.UserProjection;
 import com.hoaxify.ws.user.validation.ActivationNotificationException;
 import com.hoaxify.ws.user.validation.InvalidTokenException;
 import com.hoaxify.ws.user.validation.NotUniqueEmailException;
@@ -74,6 +72,11 @@ public class UserService {
      public User getUserById(Long id) {
           User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException(id));
           return user;
+     }
+
+     public User findByEmail(String email) {
+          return userRepository.findByEmail(email);
+          
      }
      
 
