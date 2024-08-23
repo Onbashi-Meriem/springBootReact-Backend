@@ -17,6 +17,8 @@ import com.hoaxify.ws.email.EmailService;
 import com.hoaxify.ws.user.validation.ActivationNotificationException;
 import com.hoaxify.ws.user.validation.InvalidTokenException;
 import com.hoaxify.ws.user.validation.NotUniqueEmailException;
+import com.hoaxify.ws.user.dto.UserDTO;
+import com.hoaxify.ws.user.dto.UserUpdate;
 import com.hoaxify.ws.user.exception.NotFoundException;;
 
 @Service
@@ -63,10 +65,11 @@ public class UserService {
           userRepository.save(verificatedUser);
      }
 
-     public Page<User> getAllUsers(Pageable pageable) {
-          // Page<User> users = userRepository.findAll(pageable);
-          Page<User> users = userRepository.findAll(pageable);
-          return users;
+     public Page<User> getAllUsers(Pageable pageable, User loggedInUser) {
+          if (loggedInUser == null) {
+          return userRepository.findAll(pageable);
+         }
+         return userRepository.findByIdNot(loggedInUser.getId(), pageable);
      }
 
      public User getUserById(Long id) {
@@ -77,6 +80,12 @@ public class UserService {
      public User findByEmail(String email) {
           return userRepository.findByEmail(email);
           
+     }
+
+     public User userUpdate(Long id, UserUpdate userUpdate) {
+          User inDB = getUserById(id);
+          inDB.setUsername(userUpdate.getUsername());
+          return userRepository.save(inDB);
      }
      
 
