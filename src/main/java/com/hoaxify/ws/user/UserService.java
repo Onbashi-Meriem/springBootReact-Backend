@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.hoaxify.ws.email.EmailService;
+import com.hoaxify.ws.file.FileService;
 import com.hoaxify.ws.user.validation.ActivationNotificationException;
 import com.hoaxify.ws.user.validation.InvalidTokenException;
 import com.hoaxify.ws.user.validation.NotUniqueEmailException;
@@ -30,6 +31,9 @@ public class UserService {
 
      @Autowired
      PasswordEncoder passwordEncoder;
+
+     @Autowired
+     FileService fileService;
 
      @Transactional(rollbackOn = MailException.class)
      public void save(User user) {
@@ -84,6 +88,14 @@ public class UserService {
      public User userUpdate(Long id, UserUpdate userUpdate) {
           User inDB = getUserById(id);
           inDB.setUsername(userUpdate.getUsername());
+
+          if (userUpdate.getImage() != null) {
+              
+               String filename = fileService.saveBase64StringAsFile(userUpdate.getImage());
+               inDB.setImage(filename);
+                System.out.println("-----------"+inDB.getImage());
+                
+          }
           return userRepository.save(inDB);
      }
 }
