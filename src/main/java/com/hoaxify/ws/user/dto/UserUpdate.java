@@ -4,12 +4,15 @@ import javax.persistence.Lob;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import com.hoaxify.ws.user.validation.FileType;
+
 public class UserUpdate {
     @NotBlank(message = "{hoaxify.constraint.username.notblank}")
     @Size(min=4, max=255)
     String username;
 
     @Lob
+    @FileType(types={"jpeg","png"})
     String image;
 
     public String getImage() {

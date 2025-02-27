@@ -92,9 +92,8 @@ public class UserService {
           if (userUpdate.getImage() != null) {
               
                String filename = fileService.saveBase64StringAsFile(userUpdate.getImage());
+               fileService.deleteProfilImage(inDB.getImage());
                inDB.setImage(filename);
-                System.out.println("-----------"+inDB.getImage());
-                
           }
           return userRepository.save(inDB);
      }
